@@ -1,0 +1,899 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Transfer Concept</title>
+<meta name="description" content="Unofficial concept design for an Orange Money–style transfer app covering West African markets.">
+<style>
+  :root {
+    --brand: #ff7900;
+    --brand-strong: #e86a00;
+    --brand-soft: #fff1e5;
+    --ink: #141414;
+    --ink-2: #555;
+    --ink-3: #8a8a8a;
+    --line: #e7e7e7;
+    --bg: #f4f2ef;
+    --surface: #ffffff;
+    --surface-2: #faf8f6;
+    --ok: #1f9d55;
+    --ok-soft: #e6f6ec;
+    --warn: #b45309;
+    --phone-frame: #111;
+    --shadow: 0 30px 60px -20px rgba(0,0,0,.25), 0 10px 20px -10px rgba(0,0,0,.15);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --brand: #ff8a1f;
+      --brand-strong: #ff9d45;
+      --brand-soft: #3a2410;
+      --ink: #f2f2f2;
+      --ink-2: #c4c4c4;
+      --ink-3: #8f8f8f;
+      --line: #2e2e2e;
+      --bg: #0e0e0e;
+      --surface: #1a1a1a;
+      --surface-2: #222;
+      --ok: #34c77b;
+      --ok-soft: #12301f;
+      --warn: #f59e0b;
+      --phone-frame: #000;
+      --shadow: 0 30px 60px -20px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --brand: #ff8a1f;
+    --brand-strong: #ff9d45;
+    --brand-soft: #3a2410;
+    --ink: #f2f2f2;
+    --ink-2: #c4c4c4;
+    --ink-3: #8f8f8f;
+    --line: #2e2e2e;
+    --bg: #0e0e0e;
+    --surface: #1a1a1a;
+    --surface-2: #222;
+    --ok: #34c77b;
+    --ok-soft: #12301f;
+    --warn: #f59e0b;
+    --phone-frame: #000;
+    --shadow: 0 30px 60px -20px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 48px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; gap: 32px; }
+    .stage { order: -1; position: static; }
+  }
+
+  /* ---------- Left: design notes ---------- */
+  .eyebrow { color: var(--brand); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+  h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 8px 0 12px; letter-spacing: -.02em; }
+  .lede { color: var(--ink-2); max-width: 56ch; margin: 0 0 8px; }
+  .disclaimer { font-size: 12px; color: var(--ink-3); margin: 0 0 28px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); margin: 32px 0 12px; }
+  .markets { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+  .market {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 12px; display: flex; gap: 10px; align-items: center;
+  }
+  .market .flag { font-size: 22px; line-height: 1; }
+  .market b { display: block; font-size: 14px; }
+  .market small { color: var(--ink-3); font-size: 12px; }
+  .flows { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .flows button {
+    width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .flows button:hover { border-color: var(--brand); }
+  .flows button span { color: var(--ink-3); font-size: 12px; }
+  .tokens { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .swatch i { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); display: block; }
+  .principles { margin: 0; padding-left: 18px; color: var(--ink-2); }
+  .principles li { margin-bottom: 6px; }
+  .principles b { color: var(--ink); }
+  .theme-toggle {
+    position: fixed; top: 12px; right: 12px; z-index: 10;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 13px;
+  }
+
+  /* ---------- Right: phone ---------- */
+  .stage { position: sticky; top: 24px; display: flex; justify-content: center; }
+  .phone {
+    width: 360px; max-width: 100%; height: 740px;
+    background: var(--phone-frame); border-radius: 48px; padding: 12px; box-shadow: var(--shadow);
+  }
+  .screen {
+    position: relative; height: 100%; border-radius: 38px; overflow: hidden;
+    background: var(--surface-2); display: flex; flex-direction: column;
+  }
+  .statusbar {
+    height: 40px; flex: none; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 26px; font-size: 13px; font-weight: 600; position: relative; z-index: 2;
+  }
+  .statusbar.on-brand { color: #fff; background: var(--brand); }
+  .notch { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); width: 96px; height: 26px; background: var(--phone-frame); border-radius: 20px; }
+  .view { flex: 1; overflow-y: auto; display: none; flex-direction: column; }
+  .view.active { display: flex; }
+  .view::-webkit-scrollbar { display: none; }
+
+  .topbar { display: flex; align-items: center; gap: 10px; padding: 8px 16px 12px; }
+  .topbar h3 { margin: 0; font-size: 17px; flex: 1; }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--surface);
+    display: grid; place-items: center; flex: none;
+  }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .pad { padding: 0 16px; }
+
+  /* Home */
+  .hero {
+    background: var(--brand); color: #fff; padding: 12px 20px 64px;
+    border-radius: 0 0 28px 28px;
+  }
+  .hero-top { display: flex; justify-content: space-between; align-items: center; }
+  .hello { font-size: 14px; opacity: .9; }
+  .hello b { display: block; font-size: 18px; opacity: 1; }
+  .country-chip {
+    background: rgba(255,255,255,.18); border: none; color: #fff; border-radius: 999px;
+    padding: 6px 10px; font-size: 13px; display: flex; gap: 6px; align-items: center;
+  }
+  .balance-label { margin-top: 22px; font-size: 13px; opacity: .85; display: flex; gap: 8px; align-items: center; }
+  .balance-label button { background: none; border: none; color: #fff; padding: 0; opacity: .9; }
+  .balance { font-size: 34px; font-weight: 800; letter-spacing: -.02em; margin-top: 2px; }
+  .balance small { font-size: 16px; font-weight: 600; opacity: .85; }
+  .actions {
+    margin: -40px 16px 0; background: var(--surface); border-radius: 20px; padding: 16px 8px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; box-shadow: 0 8px 24px -12px rgba(0,0,0,.2);
+  }
+  .action { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+  .action .ic { width: 46px; height: 46px; border-radius: 14px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; }
+  .action .ic svg { width: 22px; height: 22px; }
+  .section-h { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 0 10px; }
+  .section-h h4 { margin: 0; font-size: 15px; }
+  .section-h button { background: none; border: none; color: var(--brand); font-size: 13px; font-weight: 600; padding: 0; }
+  .promo {
+    background: var(--surface); border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center;
+    border: 1px solid var(--line);
+  }
+  .promo .flags { font-size: 20px; letter-spacing: -4px; flex: none; }
+  .promo p { margin: 0; font-size: 13px; color: var(--ink-2); }
+  .promo b { color: var(--ink); display: block; font-size: 14px; }
+  .contacts { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 4px; }
+  .contacts::-webkit-scrollbar { display: none; }
+  .contact { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; width: 58px; flex: none; color: var(--ink-2); }
+  .avatar {
+    width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; position: relative; flex: none;
+  }
+  .avatar .f { position: absolute; right: -4px; bottom: -2px; font-size: 16px; }
+  .tx-list { background: var(--surface); border-radius: 16px; padding: 4px 14px; border: 1px solid var(--line); }
+  .tx { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .tx:last-child { border-bottom: none; }
+  .tx .avatar { width: 40px; height: 40px; font-size: 14px; }
+  .tx .meta { flex: 1; min-width: 0; }
+  .tx .meta b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx .meta small { color: var(--ink-3); font-size: 12px; }
+  .tx .amt { font-weight: 700; font-size: 14px; text-align: right; white-space: nowrap; }
+  .tx .amt.in { color: var(--ok); }
+  .tx .amt small { display: block; font-weight: 400; color: var(--ink-3); font-size: 11px; }
+
+  .tabbar {
+    flex: none; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface);
+    border-top: 1px solid var(--line); padding: 8px 4px 18px;
+  }
+  .tab { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: var(--ink-3); }
+  .tab svg { width: 22px; height: 22px; }
+  .tab.active { color: var(--brand); font-weight: 600; }
+
+  /* Lists & forms */
+  .stepper { display: flex; gap: 6px; padding: 0 16px 14px; }
+  .stepper i { flex: 1; height: 4px; border-radius: 4px; background: var(--line); }
+  .stepper i.on { background: var(--brand); }
+  .search {
+    display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; color: var(--ink-3);
+  }
+  .search input { border: none; outline: none; background: none; flex: 1; font: inherit; color: var(--ink); min-width: 0; }
+  .list { background: var(--surface); border-radius: 16px; border: 1px solid var(--line); overflow: hidden; }
+  .row {
+    width: 100%; background: none; border: none; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-align: left;
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: var(--surface-2); }
+  .row .flag { font-size: 26px; line-height: 1; }
+  .row .meta { flex: 1; min-width: 0; }
+  .row .meta b { display: block; font-size: 15px; }
+  .row .meta small { color: var(--ink-3); font-size: 12px; }
+  .row .tag { font-size: 11px; padding: 3px 8px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-weight: 600; white-space: nowrap; }
+  .row.selected { background: var(--brand-soft); }
+  .label { font-size: 12px; color: var(--ink-3); margin: 0 0 6px; text-transform: uppercase; letter-spacing: .06em; }
+  .phone-input {
+    display: flex; align-items: center; background: var(--surface); border: 2px solid var(--brand);
+    border-radius: 14px; overflow: hidden; margin-bottom: 8px;
+  }
+  .phone-input .cc { padding: 14px 10px 14px 14px; display: flex; gap: 6px; align-items: center; font-weight: 600; border-right: 1px solid var(--line); flex: none; }
+  .phone-input input { border: none; outline: none; background: none; padding: 14px; font: inherit; font-size: 17px; font-weight: 600; color: var(--ink); flex: 1; min-width: 0; letter-spacing: .04em; }
+  .hint { font-size: 12px; color: var(--ink-3); margin: 0 0 18px; }
+  .hint.ok { color: var(--ok); }
+
+  .amount-box { background: var(--surface); border-radius: 18px; padding: 18px; border: 1px solid var(--line); }
+  .amount-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .amount-row small { color: var(--ink-3); font-size: 12px; }
+  .amount-input { font-size: 32px; font-weight: 800; border: none; outline: none; background: none; color: var(--ink); width: 100%; min-width: 0; letter-spacing: -.02em; padding: 0; }
+  .ccy { font-weight: 700; background: var(--surface-2); border-radius: 999px; padding: 6px 10px; display: flex; gap: 6px; align-items: center; white-space: nowrap; font-size: 14px; }
+  .fx-line { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 12px; color: var(--ink-3); }
+  .fx-line::before, .fx-line::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .receive { font-size: 24px; font-weight: 800; color: var(--ok); }
+  .chips { display: flex; gap: 8px; margin: 14px 0; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; }
+  .chip:hover { border-color: var(--brand); color: var(--brand); }
+  .summary { background: var(--surface); border-radius: 16px; border: 1px solid var(--line); padding: 4px 14px; margin-top: 14px; }
+  .summary div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 14px; gap: 12px; }
+  .summary div:last-child { border-bottom: none; font-weight: 700; }
+  .summary span:first-child { color: var(--ink-2); }
+  .summary div:last-child span:first-child { color: var(--ink); }
+  .summary span:last-child { text-align: right; }
+  .note { font-size: 11px; color: var(--ink-3); margin: 10px 2px 0; }
+  .spacer { flex: 1; min-height: 16px; }
+  .cta-wrap { padding: 12px 16px 20px; background: linear-gradient(to top, var(--surface-2) 70%, transparent); position: sticky; bottom: 0; }
+  .cta {
+    width: 100%; background: var(--brand); color: #fff; border: none; border-radius: 14px; padding: 15px;
+    font-weight: 700; font-size: 16px;
+  }
+  .cta:disabled { opacity: .4; cursor: not-allowed; }
+  .cta.ghost { background: transparent; color: var(--brand); border: 2px solid var(--brand); margin-top: 8px; }
+
+  .recipient-card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; text-align: center; }
+  .recipient-card .avatar { width: 64px; height: 64px; margin: 0 auto 10px; font-size: 22px; }
+  .recipient-card b { display: block; font-size: 17px; }
+  .recipient-card small { color: var(--ink-3); }
+  .big-amt { font-size: 34px; font-weight: 800; margin: 14px 0 0; letter-spacing: -.02em; }
+
+  /* PIN */
+  .pin-dots { display: flex; justify-content: center; gap: 16px; margin: 24px 0 8px; }
+  .pin-dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink-3); }
+  .pin-dots i.on { background: var(--brand); border-color: var(--brand); }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px 28px 24px; }
+  .key { height: 58px; border-radius: 16px; border: none; background: var(--surface); font-size: 22px; font-weight: 600; }
+  .key:active { background: var(--brand-soft); }
+  .key.blank { background: none; pointer-events: none; }
+
+  /* Success */
+  .success { text-align: center; padding: 24px 20px 0; }
+  .check { width: 84px; height: 84px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; margin: 12px auto 18px; animation: pop .4s ease-out; }
+  .check svg { width: 42px; height: 42px; }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .success h3 { margin: 0 0 6px; font-size: 22px; }
+  .success p { margin: 0; color: var(--ink-2); }
+  .ref { display: inline-block; margin-top: 14px; font-family: ui-monospace, monospace; font-size: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; color: var(--ink-2); }
+
+  /* Sheet */
+  .sheet-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.4); display: none; z-index: 5; }
+  .sheet-backdrop.open { display: block; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface-2); border-radius: 24px 24px 0 0; padding: 10px 16px 24px; max-height: 80%; overflow-y: auto; }
+  .sheet .grab { width: 40px; height: 5px; border-radius: 4px; background: var(--line); margin: 0 auto 12px; }
+  .sheet h4 { margin: 0 0 12px; font-size: 17px; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" type="button">◐ Theme</button>
+
+<div class="wrap">
+  <main>
+    <div class="eyebrow">Concept · Mobile money</div>
+    <h1>A money transfer app for West Africa</h1>
+    <p class="lede">An interactive prototype of an Orange Money–style wallet, limited to the West African markets where Orange runs mobile money. It covers sending within one country, sending across borders inside the UEMOA (CFA franc) zone, and sending to markets with their own currency, where the app shows the exchange rate.</p>
+    <p class="disclaimer">Unofficial concept design for study only. Not affiliated with or endorsed by Orange. Fees, rates and limits are sample values, and no real transactions or PINs are handled.</p>
+
+    <h2>Markets in scope</h2>
+    <div class="markets" id="marketGrid"></div>
+
+    <h2>Try a flow</h2>
+    <ul class="flows">
+      <li><button type="button" data-demo="home">Home &amp; wallet <span>Balance, quick actions, recent activity</span></button></li>
+      <li><button type="button" data-demo="send">Send money <span>Country → recipient → amount → PIN</span></button></li>
+      <li><button type="button" data-demo="cross">Cross-border with FX <span>Dakar → Freetown, XOF → SLE</span></button></li>
+      <li><button type="button" data-demo="history">Transaction history <span>Filter by in / out</span></button></li>
+      <li><button type="button" data-demo="country">Switch home country <span>Re-localises currency &amp; language</span></button></li>
+    </ul>
+
+    <h2>Design principles</h2>
+    <ul class="principles">
+      <li><b>Country first.</b> Picking the destination comes first, so the dial code, currency, language and number format are right from the start.</li>
+      <li><b>Show the full cost.</b> The fee, exchange rate and amount received are all visible before the PIN step, with nothing added later.</li>
+      <li><b>Built for low-end phones.</b> Large tap targets, high contrast, a short flow of 4 steps, and no heavy imagery.</li>
+      <li><b>Multilingual.</b> French, English and Portuguese labels match each market's official language. Wolof, Bambara, Mooré and other local languages could be added later.</li>
+      <li><b>Familiar mental model.</b> The flow follows the USSD menu (#144#), so people moving from feature phones recognise each step.</li>
+    </ul>
+
+    <h2>Core tokens</h2>
+    <div class="tokens">
+      <div class="swatch"><i style="background:var(--brand)"></i>Brand</div>
+      <div class="swatch"><i style="background:var(--brand-soft)"></i>Brand soft</div>
+      <div class="swatch"><i style="background:var(--ink)"></i>Ink</div>
+      <div class="swatch"><i style="background:var(--surface)"></i>Surface</div>
+      <div class="swatch"><i style="background:var(--ok)"></i>Success</div>
+    </div>
+  </main>
+
+  <aside class="stage">
+    <div class="phone">
+      <div class="screen" id="screen">
+        <div class="statusbar" id="statusbar"><span>9:41</span><span class="notch"></span><span>4G ▮▮▮</span></div>
+
+        <!-- HOME -->
+        <section class="view active" data-view="home">
+          <div class="hero">
+            <div class="hero-top">
+              <div class="hello"><span data-t="hello"></span><b>Aminata Diallo</b></div>
+              <button class="country-chip" type="button" data-open-sheet><span data-home-flag></span><span data-home-code></span> ▾</button>
+            </div>
+            <div class="balance-label"><span data-t="balance"></span><button type="button" id="toggleBal" aria-label="Show or hide balance">👁</button></div>
+            <div class="balance" id="balance"></div>
+          </div>
+          <div class="actions">
+            <button class="action" type="button" data-go="send"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></span><span data-t="send"></span></button>
+            <button class="action" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span><span data-t="airtime"></span></button>
+            <button class="action" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></span><span data-t="bills"></span></button>
+            <button class="action" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg></span><span data-t="pay"></span></button>
+          </div>
+          <div class="pad">
+            <div class="promo" style="margin-top:18px">
+              <div class="flags">🇸🇳🇨🇮🇲🇱🇸🇱</div>
+              <p><b data-t="promoTitle"></b><span data-t="promoBody"></span></p>
+            </div>
+            <div class="section-h"><h4 data-t="favourites"></h4></div>
+            <div class="contacts" id="contacts"></div>
+            <div class="section-h"><h4 data-t="recent"></h4><button type="button" data-go="history" data-t="seeAll"></button></div>
+            <div class="tx-list" id="recentTx"></div>
+            <div style="height:20px"></div>
+          </div>
+        </section>
+
+        <!-- SEND 1: destination country -->
+        <section class="view" data-view="send">
+          <div class="topbar"><button class="icon-btn" type="button" data-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18 9 12l6-6"/></svg></button><h3 data-t="whereTo"></h3></div>
+          <div class="stepper"><i class="on"></i><i></i><i></i><i></i></div>
+          <div class="pad">
+            <div class="search">🔍<input id="countrySearch" type="text" data-ph="searchCountry" autocomplete="off"></div>
+            <div class="list" id="destList"></div>
+            <p class="note" data-t="corridorNote"></p>
+            <div style="height:20px"></div>
+          </div>
+        </section>
+
+        <!-- SEND 2: recipient -->
+        <section class="view" data-view="recipient">
+          <div class="topbar"><button class="icon-btn" type="button" data-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18 9 12l6-6"/></svg></button><h3 data-t="whoTo"></h3></div>
+          <div class="stepper"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+          <div class="pad">
+            <p class="label" data-t="mobileNumber"></p>
+            <div class="phone-input"><span class="cc"><span id="rcFlag"></span><span id="rcDial"></span></span><input id="rcNumber" inputmode="numeric" autocomplete="off"></div>
+            <p class="hint" id="rcHint"></p>
+            <p class="label" data-t="recentContacts"></p>
+            <div class="list" id="rcList"></div>
+          </div>
+          <div class="spacer"></div>
+          <div class="cta-wrap"><button class="cta" type="button" id="rcNext" disabled data-t="continue"></button></div>
+        </section>
+
+        <!-- SEND 3: amount -->
+        <section class="view" data-view="amount">
+          <div class="topbar"><button class="icon-btn" type="button" data-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18 9 12l6-6"/></svg></button><h3 data-t="howMuch"></h3></div>
+          <div class="stepper"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+          <div class="pad">
+            <div class="amount-box">
+              <div class="amount-row"><small data-t="youSend"></small><small id="availLine"></small></div>
+              <div class="amount-row"><input class="amount-input" id="amt" inputmode="numeric" value="25000" autocomplete="off"><span class="ccy" id="sendCcy"></span></div>
+              <div class="fx-line" id="fxLine"></div>
+              <div class="amount-row"><small data-t="theyGet"></small></div>
+              <div class="amount-row"><span class="receive" id="recvAmt"></span><span class="ccy" id="recvCcy"></span></div>
+            </div>
+            <div class="chips" id="quickAmts"></div>
+            <div class="summary" id="feeSummary"></div>
+            <p class="note" data-t="sampleNote"></p>
+          </div>
+          <div class="spacer"></div>
+          <div class="cta-wrap"><button class="cta" type="button" id="amtNext" data-t="review"></button></div>
+        </section>
+
+        <!-- SEND 4: confirm -->
+        <section class="view" data-view="confirm">
+          <div class="topbar"><button class="icon-btn" type="button" data-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18 9 12l6-6"/></svg></button><h3 data-t="confirmTitle"></h3></div>
+          <div class="stepper"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+          <div class="pad">
+            <div class="recipient-card" id="cfCard"></div>
+            <div class="summary" id="cfSummary"></div>
+          </div>
+          <div class="spacer"></div>
+          <div class="cta-wrap"><button class="cta" type="button" data-go="pin" data-t="confirmPin"></button></div>
+        </section>
+
+        <!-- PIN -->
+        <section class="view" data-view="pin">
+          <div class="topbar"><button class="icon-btn" type="button" data-back aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18 9 12l6-6"/></svg></button><h3 data-t="enterPin"></h3></div>
+          <div class="pad" style="text-align:center">
+            <p style="color:var(--ink-2);margin:20px 0 0" data-t="pinHelp"></p>
+            <div class="pin-dots" id="pinDots"><i></i><i></i><i></i><i></i></div>
+            <p class="note" data-t="pinDemo"></p>
+          </div>
+          <div class="spacer"></div>
+          <div class="keypad" id="keypad"></div>
+        </section>
+
+        <!-- SUCCESS -->
+        <section class="view" data-view="success">
+          <div class="success" id="successBody"></div>
+          <div class="spacer"></div>
+          <div class="cta-wrap">
+            <button class="cta" type="button" data-go="home" data-t="done"></button>
+            <button class="cta ghost" type="button" data-t="share"></button>
+          </div>
+        </section>
+
+        <!-- HISTORY -->
+        <section class="view" data-view="history">
+          <div class="topbar"><h3 data-t="history" style="padding-left:4px"></h3></div>
+          <div class="pad">
+            <div class="chips" id="histFilters" style="margin-top:0"></div>
+            <div class="tx-list" id="histList"></div>
+            <div style="height:20px"></div>
+          </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section class="view" data-view="profile">
+          <div class="topbar"><h3 data-t="profile" style="padding-left:4px"></h3></div>
+          <div class="pad">
+            <div class="recipient-card"><div class="avatar" style="background:var(--brand)">AD</div><b>Aminata Diallo</b><small id="profNum"></small></div>
+            <div class="list" style="margin-top:14px">
+              <button class="row" type="button" data-open-sheet><span class="flag" data-home-flag></span><span class="meta"><b data-t="homeCountry"></b><small id="profCountry"></small></span>›</button>
+              <div class="row"><span class="flag">🌐</span><span class="meta"><b data-t="language"></b><small id="profLang"></small></span></div>
+              <div class="row"><span class="flag">🔒</span><span class="meta"><b data-t="security"></b><small data-t="securityBody"></small></span></div>
+              <div class="row"><span class="flag">#️⃣</span><span class="meta"><b data-t="ussd"></b><small>#144#</small></span></div>
+            </div>
+          </div>
+        </section>
+
+        <nav class="tabbar" id="tabbar">
+          <button class="tab active" type="button" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span data-t="tabHome"></span></button>
+          <button class="tab" type="button" data-tab="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10"/></svg><span data-t="send"></span></button>
+          <button class="tab" type="button" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-t="history"></span></button>
+          <button class="tab" type="button" data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span data-t="profile"></span></button>
+        </nav>
+
+        <div class="sheet-backdrop" id="sheet">
+          <div class="sheet" role="dialog" aria-label="Choose country">
+            <div class="grab"></div>
+            <h4 data-t="chooseHome"></h4>
+            <div class="list" id="homeList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function () {
+  // ---------- Data ----------
+  // West African markets where Orange operates mobile money.
+  // perEUR: indicative units per euro, used only to derive sample cross rates.
+  const COUNTRIES = [
+    { code: "SN", name: "Sénégal",        en: "Senegal",       flag: "🇸🇳", dial: "+221", ccy: "XOF", perEUR: 655.957, lang: "fr", digits: 9,  sample: "77 123 45 67" },
+    { code: "CI", name: "Côte d'Ivoire",  en: "Côte d'Ivoire", flag: "🇨🇮", dial: "+225", ccy: "XOF", perEUR: 655.957, lang: "fr", digits: 10, sample: "07 08 12 34 56" },
+    { code: "ML", name: "Mali",           en: "Mali",          flag: "🇲🇱", dial: "+223", ccy: "XOF", perEUR: 655.957, lang: "fr", digits: 8,  sample: "70 12 34 56" },
+    { code: "BF", name: "Burkina Faso",   en: "Burkina Faso",  flag: "🇧🇫", dial: "+226", ccy: "XOF", perEUR: 655.957, lang: "fr", digits: 8,  sample: "07 12 34 56" },
+    { code: "GN", name: "Guinée",         en: "Guinea",        flag: "🇬🇳", dial: "+224", ccy: "GNF", perEUR: 9500,    lang: "fr", digits: 9,  sample: "620 12 34 56" },
+    { code: "GW", name: "Guiné-Bissau",   en: "Guinea-Bissau", flag: "🇬🇼", dial: "+245", ccy: "XOF", perEUR: 655.957, lang: "pt", digits: 9,  sample: "955 12 34 56" },
+    { code: "SL", name: "Sierra Leone",   en: "Sierra Leone",  flag: "🇸🇱", dial: "+232", ccy: "SLE", perEUR: 25,      lang: "en", digits: 8,  sample: "76 123 456" },
+    { code: "LR", name: "Liberia",        en: "Liberia",       flag: "🇱🇷", dial: "+231", ccy: "LRD", perEUR: 210,     lang: "en", digits: 9,  sample: "77 012 3456" },
+  ];
+  const byCode = Object.fromEntries(COUNTRIES.map(c => [c.code, c]));
+  const LANG_NAME = { fr: "Français", en: "English", pt: "Português" };
+
+  // Sample tariff: free domestic below a threshold, flat % otherwise.
+  const FEES = { domestic: 0.008, uemoa: 0.015, fx: 0.025 };
+
+  const I18N = {
+    en: {
+      hello: "Good morning,", balance: "Available balance", send: "Send", airtime: "Airtime", bills: "Bills", pay: "Pay",
+      promoTitle: "Send across West Africa", promoBody: "8 countries, received instantly in the recipient's wallet.",
+      favourites: "Favourites", recent: "Recent activity", seeAll: "See all",
+      whereTo: "Send to which country?", searchCountry: "Search country", corridorNote: "Sample corridors. Real availability depends on licences in each market.",
+      local: "Local", sameCcy: "Same currency", fx: "Exchange",
+      whoTo: "Who are you sending to?", mobileNumber: "Mobile money number", recentContacts: "Recent contacts", continue: "Continue",
+      digitsLeft: n => `${n} more digit${n === 1 ? "" : "s"}`, validNum: "✓ Registered wallet · name confirmed", example: s => `Example: ${s}`,
+      howMuch: "How much?", youSend: "You send", theyGet: "They receive", available: "Available",
+      review: "Review transfer", fee: "Transfer fee", rate: "Exchange rate", total: "Total debited", arrives: "Arrives", instantly: "Instantly",
+      sampleNote: "Sample fees and indicative rates, for illustration only.",
+      confirmTitle: "Confirm transfer", to: "To", confirmPin: "Confirm with PIN",
+      enterPin: "Enter your PIN", pinHelp: "Enter your 4-digit secret code to authorise this transfer.", pinDemo: "Demo: any 4 digits work. Nothing is stored.",
+      sentTitle: "Money sent!", sentBody: (a, n) => `${a} is on its way to ${n}.`, done: "Back to home", share: "Share receipt",
+      history: "History", all: "All", sent: "Sent", received: "Received", profile: "Profile", tabHome: "Home",
+      homeCountry: "Home country", language: "Language", security: "Security", securityBody: "PIN, biometrics, device", ussd: "Works without data",
+      chooseHome: "Choose your home country", insufficient: "Insufficient balance", min: "Minimum 100",
+    },
+    fr: {
+      hello: "Bonjour,", balance: "Solde disponible", send: "Envoyer", airtime: "Crédit", bills: "Factures", pay: "Payer",
+      promoTitle: "Envoyez partout en Afrique de l'Ouest", promoBody: "8 pays, reçu instantanément sur le portefeuille.",
+      favourites: "Favoris", recent: "Activité récente", seeAll: "Tout voir",
+      whereTo: "Vers quel pays ?", searchCountry: "Rechercher un pays", corridorNote: "Corridors indicatifs. La disponibilité réelle dépend des licences de chaque pays.",
+      local: "Local", sameCcy: "Même devise", fx: "Change",
+      whoTo: "À qui envoyez-vous ?", mobileNumber: "Numéro mobile money", recentContacts: "Contacts récents", continue: "Continuer",
+      digitsLeft: n => `Encore ${n} chiffre${n === 1 ? "" : "s"}`, validNum: "✓ Compte vérifié · nom confirmé", example: s => `Exemple : ${s}`,
+      howMuch: "Quel montant ?", youSend: "Vous envoyez", theyGet: "Il/elle reçoit", available: "Disponible",
+      review: "Vérifier le transfert", fee: "Frais", rate: "Taux de change", total: "Total débité", arrives: "Réception", instantly: "Immédiate",
+      sampleNote: "Frais et taux indicatifs, à titre d'illustration.",
+      confirmTitle: "Confirmer le transfert", to: "À", confirmPin: "Confirmer avec le code",
+      enterPin: "Code secret", pinHelp: "Saisissez votre code à 4 chiffres pour autoriser ce transfert.", pinDemo: "Démo : 4 chiffres au choix. Rien n'est enregistré.",
+      sentTitle: "Transfert réussi !", sentBody: (a, n) => `${a} envoyé à ${n}.`, done: "Retour à l'accueil", share: "Partager le reçu",
+      history: "Historique", all: "Tout", sent: "Envoyés", received: "Reçus", profile: "Profil", tabHome: "Accueil",
+      homeCountry: "Pays", language: "Langue", security: "Sécurité", securityBody: "Code, biométrie, appareil", ussd: "Sans internet",
+      chooseHome: "Choisissez votre pays", insufficient: "Solde insuffisant", min: "Minimum 100",
+    },
+    pt: {
+      hello: "Bom dia,", balance: "Saldo disponível", send: "Enviar", airtime: "Saldo", bills: "Contas", pay: "Pagar",
+      promoTitle: "Envie para toda a África Ocidental", promoBody: "8 países, recebido na hora na carteira.",
+      favourites: "Favoritos", recent: "Atividade recente", seeAll: "Ver tudo",
+      whereTo: "Para que país?", searchCountry: "Procurar país", corridorNote: "Corredores indicativos. A disponibilidade real depende das licenças em cada país.",
+      local: "Local", sameCcy: "Mesma moeda", fx: "Câmbio",
+      whoTo: "Para quem está a enviar?", mobileNumber: "Número mobile money", recentContacts: "Contactos recentes", continue: "Continuar",
+      digitsLeft: n => `Faltam ${n} dígito${n === 1 ? "" : "s"}`, validNum: "✓ Carteira verificada · nome confirmado", example: s => `Exemplo: ${s}`,
+      howMuch: "Quanto?", youSend: "Envia", theyGet: "Recebe", available: "Disponível",
+      review: "Rever transferência", fee: "Taxa", rate: "Câmbio", total: "Total debitado", arrives: "Chegada", instantly: "Imediata",
+      sampleNote: "Taxas e câmbios indicativos, apenas ilustrativos.",
+      confirmTitle: "Confirmar transferência", to: "Para", confirmPin: "Confirmar com PIN",
+      enterPin: "Introduza o PIN", pinHelp: "Introduza o seu código de 4 dígitos para autorizar.", pinDemo: "Demo: quaisquer 4 dígitos. Nada é guardado.",
+      sentTitle: "Dinheiro enviado!", sentBody: (a, n) => `${a} enviado para ${n}.`, done: "Voltar ao início", share: "Partilhar recibo",
+      history: "Histórico", all: "Tudo", sent: "Enviados", received: "Recebidos", profile: "Perfil", tabHome: "Início",
+      homeCountry: "País", language: "Idioma", security: "Segurança", securityBody: "PIN, biometria, dispositivo", ussd: "Funciona sem dados",
+      chooseHome: "Escolha o seu país", insufficient: "Saldo insuficiente", min: "Mínimo 100",
+    },
+  };
+
+  const CONTACTS = [
+    { name: "Moussa Traoré",   init: "MT", country: "ML", num: "70 45 88 12",    color: "#2f80ed" },
+    { name: "Fatou Ndiaye",    init: "FN", country: "SN", num: "77 210 33 90",   color: "#9b51e0" },
+    { name: "Kouassi Yao",     init: "KY", country: "CI", num: "07 58 41 20 66", color: "#27ae60" },
+    { name: "Ibrahim Kamara",  init: "IK", country: "SL", num: "76 554 018",     color: "#eb5757" },
+    { name: "Mariama Bah",     init: "MB", country: "GN", num: "622 45 10 87",   color: "#f2994a" },
+    { name: "Ousmane Sawadogo",init: "OS", country: "BF", num: "07 66 21 43",    color: "#219653" },
+    { name: "Grace Johnson",   init: "GJ", country: "LR", num: "77 845 2210",    color: "#56ccf2" },
+  ];
+
+  // ---------- State ----------
+  const state = {
+    home: "SN",
+    balanceXOF: 412750, // stored in home currency at boot, re-expressed on country switch
+    hideBal: false,
+    dest: null,
+    recipient: null,
+    amount: 25000,
+    pin: "",
+    stack: ["home"],
+    histFilter: "all",
+    tx: [
+      { name: "Fatou Ndiaye", init: "FN", color: "#9b51e0", country: "SN", dir: "out", amt: 15000, ccy: "XOF", when: "Today, 08:12" },
+      { name: "Kouassi Yao", init: "KY", color: "#27ae60", country: "CI", dir: "in", amt: 50000, ccy: "XOF", when: "Yesterday, 18:40" },
+      { name: "Ibrahim Kamara", init: "IK", color: "#eb5757", country: "SL", dir: "out", amt: 30000, ccy: "XOF", recv: "1,143 SLE", when: "Mon, 11:05" },
+      { name: "Airtime 77 123 45 67", init: "📱", color: "#ff7900", country: "SN", dir: "out", amt: 2000, ccy: "XOF", when: "Sun, 09:30" },
+      { name: "Moussa Traoré", init: "MT", color: "#2f80ed", country: "ML", dir: "in", amt: 75000, ccy: "XOF", when: "Fri, 14:22" },
+      { name: "Senelec bill", init: "⚡", color: "#f2c94c", country: "SN", dir: "out", amt: 18500, ccy: "XOF", when: "Thu, 10:01" },
+    ],
+  };
+
+  // ---------- Helpers ----------
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const home = () => byCode[state.home];
+  const L = () => I18N[home().lang];
+  const t = (k, ...a) => { const v = L()[k]; return typeof v === "function" ? v(...a) : v; };
+  const locale = () => ({ fr: "fr-FR", en: "en-GB", pt: "pt-PT" })[home().lang];
+  const fmt = (n, ccy) => {
+    const dec = ccy === "SLE" || ccy === "LRD" ? 2 : 0;
+    return new Intl.NumberFormat(locale(), { minimumFractionDigits: dec, maximumFractionDigits: dec }).format(n) + " " + ccy;
+  };
+  const rate = (from, to) => to.perEUR / from.perEUR;
+  const balance = () => state.balanceXOF * rate(byCode.SN, home());
+
+  function feeFor(dest, amount) {
+    const h = home();
+    if (dest.code === h.code) return { kind: "domestic", fee: amount <= 5000 ? 0 : Math.round(amount * FEES.domestic) };
+    if (dest.ccy === h.ccy) return { kind: "uemoa", fee: Math.round(amount * FEES.uemoa) };
+    return { kind: "fx", fee: Math.round(amount * FEES.fx) };
+  }
+
+  // ---------- Navigation ----------
+  const TAB_FOR = { home: "home", send: "send", recipient: "send", amount: "send", confirm: "send", pin: "send", success: "send", history: "history", profile: "profile" };
+  function show(view, push = true) {
+    if (push) state.stack.push(view);
+    $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === view));
+    $$(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === TAB_FOR[view]));
+    $("#tabbar").style.display = ["pin", "success", "confirm", "amount", "recipient"].includes(view) ? "none" : "";
+    $("#statusbar").classList.toggle("on-brand", view === "home");
+    const active = $(`.view[data-view="${view}"]`);
+    active.scrollTop = 0;
+    RENDER[view] && RENDER[view]();
+  }
+  function back() {
+    state.stack.pop();
+    show(state.stack[state.stack.length - 1] || "home", false);
+  }
+  function resetTo(view) { state.stack = ["home"]; if (view !== "home") state.stack.push(view); show(view, false); }
+
+  // ---------- Renderers ----------
+  function applyI18n() {
+    document.documentElement.lang = home().lang;
+    $$("[data-t]").forEach(el => { const v = t(el.dataset.t); if (typeof v === "string") el.textContent = v; });
+    $$("[data-ph]").forEach(el => el.placeholder = t(el.dataset.ph));
+    $$("[data-home-flag]").forEach(el => el.textContent = home().flag);
+    $$("[data-home-code]").forEach(el => el.textContent = home().code);
+  }
+
+  function txRow(x) {
+    const c = byCode[x.country];
+    const ccy = home().ccy;
+    const amt = x.amt * rate(byCode[x.ccy === "XOF" ? "SN" : x.country], home());
+    return `<div class="tx">
+      <div class="avatar" style="background:${x.color}">${x.init}<span class="f">${c.flag}</span></div>
+      <div class="meta"><b>${x.name}</b><small>${x.when}</small></div>
+      <div class="amt ${x.dir === "in" ? "in" : ""}">${x.dir === "in" ? "+" : "−"}${fmt(amt, ccy)}${x.recv ? `<small>→ ${x.recv}</small>` : ""}</div>
+    </div>`;
+  }
+
+  const RENDER = {
+    home() {
+      $("#balance").innerHTML = state.hideBal
+        ? "••••••"
+        : fmt(balance(), home().ccy).replace(/ (\w+)$/, " <small>$1</small>");
+      $("#contacts").innerHTML = CONTACTS.map((c, i) =>
+        `<button class="contact" type="button" data-contact="${i}"><span class="avatar" style="background:${c.color}">${c.init}<span class="f">${byCode[c.country].flag}</span></span>${c.name.split(" ")[0]}</button>`
+      ).join("");
+      $("#recentTx").innerHTML = state.tx.slice(0, 3).map(txRow).join("");
+    },
+    send() {
+      const q = ($("#countrySearch").value || "").toLowerCase();
+      const h = home();
+      const list = [h, ...COUNTRIES.filter(c => c.code !== h.code)]
+        .filter(c => !q || c.name.toLowerCase().includes(q) || c.en.toLowerCase().includes(q));
+      $("#destList").innerHTML = list.map(c => {
+        const kind = c.code === h.code ? t("local") : c.ccy === h.ccy ? t("sameCcy") : `${t("fx")} ${c.ccy}`;
+        return `<button class="row" type="button" data-dest="${c.code}"><span class="flag">${c.flag}</span><span class="meta"><b>${h.lang === "en" ? c.en : c.name}</b><small>${c.dial} · ${c.ccy}</small></span><span class="tag">${kind}</span></button>`;
+      }).join("");
+    },
+    recipient() {
+      const d = state.dest;
+      $("#rcFlag").textContent = d.flag;
+      $("#rcDial").textContent = d.dial;
+      $("#rcNumber").placeholder = d.sample;
+      const list = CONTACTS.filter(c => c.country === d.code);
+      $("#rcList").innerHTML = list.length
+        ? list.map(c => `<button class="row" type="button" data-pick="${CONTACTS.indexOf(c)}"><span class="avatar" style="background:${c.color};width:40px;height:40px;font-size:14px">${c.init}</span><span class="meta"><b>${c.name}</b><small>${d.dial} ${c.num}</small></span>›</button>`).join("")
+        : `<div class="row"><span class="meta"><small>—</small></span></div>`;
+      validateNumber();
+    },
+    amount() {
+      const h = home(), d = state.dest;
+      $("#sendCcy").textContent = `${h.flag} ${h.ccy}`;
+      $("#recvCcy").textContent = `${d.flag} ${d.ccy}`;
+      $("#availLine").textContent = `${t("available")}: ${fmt(balance(), h.ccy)}`;
+      const quick = h.ccy === "XOF" ? [5000, 10000, 25000, 50000] : h.ccy === "GNF" ? [50000, 100000, 250000, 500000] : h.ccy === "SLE" ? [100, 250, 500, 1000] : [1000, 2500, 5000, 10000];
+      $("#quickAmts").innerHTML = quick.map(q => `<button class="chip" type="button" data-quick="${q}">${fmt(q, h.ccy)}</button>`).join("");
+      updateAmount();
+    },
+    confirm() {
+      const h = home(), d = state.dest, r = state.recipient;
+      const { fee } = feeFor(d, state.amount);
+      const recv = state.amount * rate(h, d);
+      $("#cfCard").innerHTML = `<div class="avatar" style="background:${r.color}">${r.init}</div><b>${r.name}</b><small>${d.flag} ${d.dial} ${r.num}</small><div class="big-amt">${fmt(recv, d.ccy)}</div>`;
+      $("#cfSummary").innerHTML = summaryRows(h, d, state.amount, fee, recv);
+    },
+    pin() { state.pin = ""; paintPin(); },
+    success() {
+      const d = state.dest, r = state.recipient;
+      const recv = state.amount * rate(home(), d);
+      const ref = "OM" + Date.now().toString().slice(-9);
+      $("#successBody").innerHTML = `<div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3>${t("sentTitle")}</h3><p>${t("sentBody", fmt(recv, d.ccy), r.name)}</p><span class="ref">Ref ${ref}</span>`;
+    },
+    history() {
+      const F = [["all", t("all")], ["out", t("sent")], ["in", t("received")]];
+      $("#histFilters").innerHTML = F.map(([k, l]) => `<button class="chip" type="button" data-filter="${k}" style="${state.histFilter === k ? "border-color:var(--brand);color:var(--brand)" : ""}">${l}</button>`).join("");
+      $("#histList").innerHTML = state.tx.filter(x => state.histFilter === "all" || x.dir === state.histFilter).map(txRow).join("");
+    },
+    profile() {
+      const h = home();
+      $("#profNum").textContent = `${h.dial} ${h.sample}`;
+      $("#profCountry").textContent = `${h.lang === "en" ? h.en : h.name} · ${h.ccy}`;
+      $("#profLang").textContent = LANG_NAME[h.lang];
+    },
+  };
+
+  function summaryRows(h, d, amount, fee, recv) {
+    const rows = [[t("youSend"), fmt(amount, h.ccy)], [t("fee"), fee ? fmt(fee, h.ccy) : "0 " + h.ccy]];
+    if (h.ccy !== d.ccy) {
+      const r = rate(h, d);
+      rows.push([t("rate"), `1 ${h.ccy} = ${r.toFixed(r < 1 ? 4 : 2)} ${d.ccy}`]);
+    }
+    rows.push([t("theyGet"), fmt(recv, d.ccy)], [t("arrives"), t("instantly")], [t("total"), fmt(amount + fee, h.ccy)]);
+    return rows.map(([a, b]) => `<div><span>${a}</span><span>${b}</span></div>`).join("");
+  }
+
+  function validateNumber() {
+    const d = state.dest;
+    const digits = $("#rcNumber").value.replace(/\D/g, "");
+    const left = d.digits - digits.length;
+    const hint = $("#rcHint");
+    if (!digits.length) { hint.textContent = t("example", d.sample); hint.className = "hint"; }
+    else if (left > 0) { hint.textContent = t("digitsLeft", left); hint.className = "hint"; }
+    else { hint.textContent = t("validNum"); hint.className = "hint ok"; }
+    $("#rcNext").disabled = left > 0;
+    if (left <= 0 && !state.recipient) {
+      state.recipient = { name: d.dial + " " + digits, init: "#", color: "#828282", num: digits };
+    }
+    if (left > 0) state.recipient = null;
+  }
+
+  function updateAmount() {
+    const h = home(), d = state.dest;
+    const raw = Number($("#amt").value.replace(/\D/g, "")) || 0;
+    state.amount = raw;
+    $("#amt").value = raw ? new Intl.NumberFormat(locale()).format(raw) : "";
+    const { fee } = feeFor(d, raw);
+    const recv = raw * rate(h, d);
+    $("#recvAmt").textContent = fmt(recv, d.ccy).replace(/ \w+$/, "");
+    $("#fxLine").textContent = h.ccy === d.ccy ? "1:1" : `1 ${h.ccy} ≈ ${rate(h, d).toFixed(rate(h, d) < 1 ? 4 : 2)} ${d.ccy}`;
+    $("#feeSummary").innerHTML = summaryRows(h, d, raw, fee, recv);
+    const over = raw + fee > balance();
+    const btn = $("#amtNext");
+    btn.disabled = raw < 100 || over;
+    btn.textContent = over ? t("insufficient") : raw < 100 ? t("min") : t("review");
+  }
+
+  function paintPin() {
+    $$("#pinDots i").forEach((d, i) => d.classList.toggle("on", i < state.pin.length));
+  }
+
+  function completeTransfer() {
+    const h = home(), d = state.dest, r = state.recipient;
+    const { fee } = feeFor(d, state.amount);
+    state.balanceXOF -= (state.amount + fee) * rate(h, byCode.SN);
+    state.tx.unshift({
+      name: r.name, init: r.init, color: r.color, country: d.code, dir: "out",
+      amt: state.amount * rate(h, byCode.SN), ccy: "XOF",
+      recv: h.ccy !== d.ccy ? fmt(state.amount * rate(h, d), d.ccy) : null,
+      when: h.lang === "fr" ? "À l'instant" : h.lang === "pt" ? "Agora" : "Just now",
+    });
+    show("success");
+  }
+
+  function startSend(destCode, contactIdx) {
+    state.recipient = null;
+    $("#rcNumber").value = "";
+    if (destCode) {
+      state.dest = byCode[destCode];
+      if (contactIdx != null) {
+        state.recipient = CONTACTS[contactIdx];
+        state.stack = ["home", "send", "recipient", "amount"];
+        $("#amt").value = home().ccy === "XOF" ? 25000 : Math.round(25000 * rate(byCode.SN, home()));
+        show("amount", false);
+        return;
+      }
+      state.stack = ["home", "send", "recipient"];
+      show("recipient", false);
+      return;
+    }
+    $("#countrySearch").value = "";
+    resetTo("send");
+  }
+
+  // ---------- Events ----------
+  document.addEventListener("click", e => {
+    const el = e.target.closest("button, .sheet-backdrop");
+    if (!el) return;
+
+    if (el.id === "sheet" && e.target === el) { el.classList.remove("open"); return; }
+    if (el.matches("[data-back]")) return back();
+    if (el.matches("[data-tab]")) { const v = el.dataset.tab; return v === "send" ? startSend() : resetTo(v); }
+    if (el.matches("[data-go]")) {
+      const v = el.dataset.go;
+      if (v === "send") return startSend();
+      if (v === "home" || v === "history") return resetTo(v);
+      return show(v);
+    }
+    if (el.matches("[data-dest]")) { state.dest = byCode[el.dataset.dest]; state.recipient = null; $("#rcNumber").value = ""; return show("recipient"); }
+    if (el.matches("[data-pick]")) {
+      state.recipient = CONTACTS[+el.dataset.pick];
+      $("#rcNumber").value = state.recipient.num;
+      $("#amt").value = home().ccy === "XOF" ? 25000 : Math.round(25000 * rate(byCode.SN, home()));
+      return show("amount");
+    }
+    if (el.matches("[data-contact]")) { const c = CONTACTS[+el.dataset.contact]; return startSend(c.country, +el.dataset.contact); }
+    if (el.id === "rcNext") { $("#amt").value = home().ccy === "XOF" ? 25000 : Math.round(25000 * rate(byCode.SN, home())); return show("amount"); }
+    if (el.matches("[data-quick]")) { $("#amt").value = el.dataset.quick; return updateAmount(); }
+    if (el.id === "amtNext") return show("confirm");
+    if (el.matches("[data-key]")) {
+      const k = el.dataset.key;
+      if (k === "del") state.pin = state.pin.slice(0, -1);
+      else if (state.pin.length < 4) state.pin += k;
+      paintPin();
+      if (state.pin.length === 4) setTimeout(completeTransfer, 250);
+      return;
+    }
+    if (el.matches("[data-filter]")) { state.histFilter = el.dataset.filter; return RENDER.history(); }
+    if (el.id === "toggleBal") { state.hideBal = !state.hideBal; return RENDER.home(); }
+    if (el.matches("[data-open-sheet]")) { renderHomeList(); return $("#sheet").classList.add("open"); }
+    if (el.matches("[data-home]")) {
+      state.home = el.dataset.home;
+      $("#sheet").classList.remove("open");
+      applyI18n();
+      return resetTo(state.stack[state.stack.length - 1] === "profile" ? "profile" : "home");
+    }
+    if (el.matches("[data-demo]")) return runDemo(el.dataset.demo);
+    if (el.id === "themeToggle") return cycleTheme();
+  });
+
+  $("#countrySearch").addEventListener("input", RENDER.send);
+  $("#rcNumber").addEventListener("input", () => { state.recipient = null; validateNumber(); });
+  $("#amt").addEventListener("input", updateAmount);
+
+  function renderHomeList() {
+    $("#homeList").innerHTML = COUNTRIES.map(c =>
+      `<button class="row ${c.code === state.home ? "selected" : ""}" type="button" data-home="${c.code}"><span class="flag">${c.flag}</span><span class="meta"><b>${c.name}</b><small>${c.ccy} · ${LANG_NAME[c.lang]}</small></span>${c.code === state.home ? "✓" : ""}</button>`
+    ).join("");
+  }
+
+  function runDemo(which) {
+    if (which === "home") return resetTo("home");
+    if (which === "send") return startSend();
+    if (which === "history") return resetTo("history");
+    if (which === "country") { resetTo("home"); renderHomeList(); return $("#sheet").classList.add("open"); }
+    if (which === "cross") {
+      if (state.home !== "SN") { state.home = "SN"; applyI18n(); }
+      return startSend("SL", 3);
+    }
+  }
+
+  // Theme: auto → light → dark
+  function cycleTheme() {
+    const r = document.documentElement;
+    const cur = r.dataset.theme;
+    const next = !cur ? "light" : cur === "light" ? "dark" : null;
+    if (next) r.dataset.theme = next; else delete r.dataset.theme;
+    try { next ? localStorage.setItem("om-theme", next) : localStorage.removeItem("om-theme"); } catch (_) {}
+  }
+  try { const saved = localStorage.getItem("om-theme"); if (saved) document.documentElement.dataset.theme = saved; } catch (_) {}
+
+  // ---------- Boot ----------
+  $("#keypad").innerHTML = ["1","2","3","4","5","6","7","8","9","","0","del"].map(k =>
+    k === "" ? `<span class="key blank"></span>` : `<button class="key" type="button" data-key="${k}" ${k === "del" ? 'aria-label="Delete"' : ""}>${k === "del" ? "⌫" : k}</button>`
+  ).join("");
+  $("#marketGrid").innerHTML = COUNTRIES.map(c =>
+    `<div class="market"><span class="flag">${c.flag}</span><span><b>${c.en}</b><small>${c.dial} · ${c.ccy} · ${LANG_NAME[c.lang]}</small></span></div>`
+  ).join("");
+  applyI18n();
+  show("home", false);
+})();
+</script>
+</body>
+</html>

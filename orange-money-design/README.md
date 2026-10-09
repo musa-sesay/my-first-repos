@@ -14,7 +14,10 @@ West African markets where Orange runs mobile money:
 | Sierra Leone | +232 | SLE | English |
 | Liberia | +231 | LRD | English |
 
-Open `index.html` in any browser. No build step and no dependencies.
+Open the files in any browser. No build step and no dependencies.
+
+- `screens.html`: **mobile app design board** with 20 screens grouped by flow (onboarding, wallet, send money, more services and error states), followed by the style guide (colours, type, components, rules)
+- `index.html`: interactive click-through prototype
 
 ## What's in it
 - **Home**: balance (can be hidden), quick actions, favourites, recent activity

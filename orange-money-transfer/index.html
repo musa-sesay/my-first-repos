@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orange Money Transfer — West Africa</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="stage">
+  <aside class="notes" aria-label="Design notes">
+    <p class="eyebrow">Concept design</p>
+    <h1>Money transfer, West Africa only</h1>
+    <p>A clickable mobile prototype of the transfer flow. Sending is limited to the eight West African markets where Orange Money operates. Every other destination is out of scope by design.</p>
+    <ol class="flow">
+      <li>Home: balance and recent transfers</li>
+      <li>Destination: the eight West African countries</li>
+      <li>Recipient: local number format per country</li>
+      <li>Amount: fee, rate and payout shown before you commit</li>
+      <li>Review, then confirm with your PIN</li>
+      <li>Receipt with a transfer reference</li>
+    </ol>
+    <p class="fine">Rates, fees and limits are placeholder values for the prototype. Demo PIN: any 4 digits.</p>
+  </aside>
+
+  <div class="phone" role="application" aria-label="Orange Money transfer prototype">
+    <div class="statusbar"><span>9:41</span><span class="sb-right">4G ▮▮▮ 82%</span></div>
+    <div class="screen" id="screen"></div>
+    <nav class="tabbar" id="tabbar">
+      <button data-tab="home" class="active"><span class="ti">⌂</span><span data-i18n="tabHome">Home</span></button>
+      <button data-tab="send"><span class="ti">➤</span><span data-i18n="tabSend">Send</span></button>
+      <button data-tab="history"><span class="ti">☰</span><span data-i18n="tabHistory">History</span></button>
+      <button data-tab="profile"><span class="ti">◯</span><span data-i18n="tabProfile">Profile</span></button>
+    </nav>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

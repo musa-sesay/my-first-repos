@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orange Money Transfer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="stage">
+    <section class="intro">
+      <span class="eyebrow">Concept · USA → Africa remittances</span>
+      <h1>Orange Money Transfer</h1>
+      <p>A mobile app for people in the United States sending money home to Orange Money wallets, bank accounts and cash pickup points across West and Central Africa.</p>
+      <ul class="intro-points">
+        <li><b>Fund in USD</b> with a bank account (ACH), debit card or Apple Pay</li>
+        <li><b>Deliver in minutes</b> to Orange Money wallets in 7 countries</li>
+        <li><b>Upfront pricing</b> with the fee, rate and amount received shown before you pay</li>
+      </ul>
+      <p class="hint">Tap the tabs and the <b>Send</b> button in the phone to walk through the flow.</p>
+    </section>
+
+    <div class="phone" aria-label="App prototype">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="sb-icons">●●● ▲ ▮</span></div>
+
+      <!-- HOME -->
+      <div class="screen active" id="home">
+        <header class="top">
+          <div class="brand"><span class="logo-dot"></span>orange<b>money</b></div>
+          <button class="icon-btn" aria-label="Notifications">
+            <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/></svg>
+            <span class="badge"></span>
+          </button>
+        </header>
+        <p class="greeting">Good morning, Musa 👋</p>
+
+        <div class="balance-card">
+          <div class="bc-row">
+            <span>USD wallet</span>
+            <span class="chip-flag">🇺🇸 USD</span>
+          </div>
+          <div class="balance">$1,248<span>.50</span></div>
+          <div class="bc-actions">
+            <button data-go="send" class="bc-btn primary">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Send</button>
+            <button class="bc-btn"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add money</button>
+            <button class="bc-btn"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Bills</button>
+          </div>
+        </div>
+
+        <div class="rate-strip">
+          <div><small>Today’s rate</small><b>1 USD = 22,850 SLE</b></div>
+          <span class="tag-green">▲ 0.4%</span>
+        </div>
+
+        <div class="section-head"><h3>Send again</h3><a data-go="recipients">See all</a></div>
+        <div class="avatars">
+          <button class="av" data-go="send"><span style="--c:#FF7900">AK</span>Aminata<small>🇸🇱</small></button>
+          <button class="av" data-go="send"><span style="--c:#2B6CB0">IB</span>Ibrahim<small>🇬🇳</small></button>
+          <button class="av" data-go="send"><span style="--c:#38A169">FS</span>Fatou<small>🇸🇳</small></button>
+          <button class="av" data-go="send"><span style="--c:#805AD5">KD</span>Kofi<small>🇨🇮</small></button>
+          <button class="av add" data-go="recipients"><span>+</span>New</button>
+        </div>
+
+        <div class="section-head"><h3>Recent activity</h3><a data-go="activity">See all</a></div>
+        <ul class="tx-list" id="home-tx"></ul>
+      </div>
+
+      <!-- SEND -->
+      <div class="screen" id="send">
+        <header class="top">
+          <button class="icon-btn" data-go="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <h2>Send money</h2>
+          <span class="step">1/2</span>
+        </header>
+
+        <label class="field-label">Recipient</label>
+        <div class="recipient-pill">
+          <span class="av-sm" style="--c:#FF7900">AK</span>
+          <div><b>Aminata Kamara</b><small>Orange Money · +232 76 ••• 412</small></div>
+          <button class="link" data-go="recipients">Change</button>
+        </div>
+
+        <div class="amount-box">
+          <label>You send</label>
+          <div class="amount-row">
+            <input id="amt" inputmode="decimal" value="200" aria-label="Amount in USD">
+            <span class="cur">🇺🇸 USD</span>
+          </div>
+        </div>
+        <div class="swap">
+          <span class="line"></span>
+          <span class="rate-pill" id="rate-label">1 USD = 22,850 SLE</span>
+          <span class="line"></span>
+        </div>
+        <div class="amount-box receive">
+          <label>They receive</label>
+          <div class="amount-row">
+            <output id="recv">4,570,000</output>
+            <select id="country" aria-label="Destination country">
+              <option value="SL">🇸🇱 SLE</option>
+              <option value="GN">🇬🇳 GNF</option>
+              <option value="SN">🇸🇳 XOF</option>
+              <option value="CI">🇨🇮 XOF</option>
+              <option value="ML">🇲🇱 XOF</option>
+              <option value="CM">🇨🇲 XAF</option>
+              <option value="LR">🇱🇷 LRD</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="field-label">Delivery method</label>
+        <div class="seg" role="radiogroup">
+          <button class="seg-opt on" data-fee="2.99" data-eta="Within minutes">📱 Orange Money</button>
+          <button class="seg-opt" data-fee="3.99" data-eta="1–2 business days">🏦 Bank</button>
+          <button class="seg-opt" data-fee="4.99" data-eta="Within 1 hour">💵 Cash pickup</button>
+        </div>
+
+        <label class="field-label">Pay with</label>
+        <div class="pay-method">
+          <span class="pm-icon">🏦</span>
+          <div><b>Chase checking ••6621</b><small>Bank account (ACH) · no card fee</small></div>
+          <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+
+        <dl class="summary">
+          <div><dt>Transfer fee</dt><dd id="fee">$2.99</dd></div>
+          <div><dt>Total to pay</dt><dd id="total"><b>$202.99</b></dd></div>
+          <div><dt>Arrives</dt><dd id="eta" class="green">Within minutes</dd></div>
+        </dl>
+
+        <button class="cta" data-go="review">Continue</button>
+      </div>
+
+      <!-- REVIEW -->
+      <div class="screen" id="review">
+        <header class="top">
+          <button class="icon-btn" data-go="send" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <h2>Review transfer</h2>
+          <span class="step">2/2</span>
+        </header>
+
+        <div class="review-hero">
+          <small>Aminata receives</small>
+          <div class="big" id="r-recv">4,570,000 SLE</div>
+          <span class="tag-green" id="r-eta">Within minutes</span>
+        </div>
+
+        <dl class="summary boxed">
+          <div><dt>Transfer amount</dt><dd id="r-amt">$200.00</dd></div>
+          <div><dt>Transfer fee</dt><dd id="r-fee">$2.99</dd></div>
+          <div><dt>Taxes</dt><dd>$0.00</dd></div>
+          <div class="total"><dt>Total</dt><dd id="r-total">$202.99</dd></div>
+          <div><dt>Exchange rate</dt><dd id="r-rate">1 USD = 22,850 SLE</dd></div>
+          <div><dt>Recipient</dt><dd>Aminata Kamara<br><small id="r-dest">Orange Money · Sierra Leone</small></dd></div>
+          <div><dt>Paid from</dt><dd>Chase checking ••6621</dd></div>
+        </dl>
+
+        <p class="disclosure">
+          You have 30 minutes after paying to cancel for a full refund. You can also contact us about errors.
+          Licensed as a money transmitter in the US. Recipients may pay fees or taxes to their provider.
+        </p>
+
+        <button class="cta" data-go="success">Send $202.99</button>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="screen" id="success">
+        <div class="success-wrap">
+          <div class="check"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
+          <h2>Money sent!</h2>
+          <p id="s-msg">Aminata will receive 4,570,000 SLE via Orange Money within minutes.</p>
+          <ol class="track">
+            <li class="done"><b>Payment received</b><small>Just now</small></li>
+            <li class="done"><b>Sent to Orange Money</b><small>Just now</small></li>
+            <li><b>Available to Aminata</b><small>Estimated: within minutes</small></li>
+          </ol>
+          <button class="cta" data-go="home">Back to home</button>
+          <button class="cta ghost">Share receipt</button>
+        </div>
+      </div>
+
+      <!-- RECIPIENTS -->
+      <div class="screen" id="recipients">
+        <header class="top"><h2>Recipients</h2>
+          <button class="icon-btn" aria-label="Add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        </header>
+        <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input placeholder="Search name or phone"></div>
+        <ul class="people">
+          <li data-go="send"><span class="av-sm" style="--c:#FF7900">AK</span><div><b>Aminata Kamara</b><small>🇸🇱 Orange Money · +232 76 ••• 412</small></div><span class="chev">›</span></li>
+          <li data-go="send"><span class="av-sm" style="--c:#2B6CB0">IB</span><div><b>Ibrahim Bah</b><small>🇬🇳 Orange Money · +224 62 ••• 090</small></div><span class="chev">›</span></li>
+          <li data-go="send"><span class="av-sm" style="--c:#38A169">FS</span><div><b>Fatou Sow</b><small>🇸🇳 Ecobank ••4410</small></div><span class="chev">›</span></li>
+          <li data-go="send"><span class="av-sm" style="--c:#805AD5">KD</span><div><b>Kofi Diallo</b><small>🇨🇮 Orange Money · +225 07 ••• 155</small></div><span class="chev">›</span></li>
+          <li data-go="send"><span class="av-sm" style="--c:#D69E2E">MS</span><div><b>Mariama Sesay</b><small>🇸🇱 Cash pickup · Freetown</small></div><span class="chev">›</span></li>
+        </ul>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="screen" id="activity">
+        <header class="top"><h2>Activity</h2></header>
+        <div class="stats">
+          <div><small>Sent this month</small><b>$850.00</b></div>
+          <div><small>Fees saved</small><b class="green">$12.40</b></div>
+        </div>
+        <ul class="tx-list" id="all-tx"></ul>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="screen" id="profile">
+        <header class="top"><h2>Account</h2></header>
+        <div class="profile-card">
+          <span class="av-lg">MS</span>
+          <div><b>Musa Sesay</b><small>Silver Spring, MD · Verified ✓</small></div>
+        </div>
+        <div class="limit">
+          <div class="bc-row"><span>Monthly sending limit</span><b>$850 / $3,000</b></div>
+          <div class="bar"><span style="width:28%"></span></div>
+          <small>Verify your SSN to raise your limit to $10,000.</small>
+        </div>
+        <ul class="menu">
+          <li>🏦 Payment methods</li>
+          <li>🔒 Security &amp; Face ID</li>
+          <li>🔔 Rate alerts</li>
+          <li>🎁 Refer a friend: you both get $10</li>
+          <li>💬 Help &amp; support (24/7)</li>
+          <li>📄 Legal &amp; licenses</li>
+        </ul>
+      </div>
+
+      <nav class="tabbar">
+        <button data-go="home" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+        <button data-go="recipients"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 1 0 0-6M22 21c0-3-2-5-5-5"/></svg>People</button>
+        <button data-go="send" class="fab" aria-label="Send money"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button data-go="activity"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Activity</button>
+        <button data-go="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Account</button>
+      </nav>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

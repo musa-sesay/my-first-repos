@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Transfer UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#FF7900; --brand-600:#E86A00; --brand-50:#FFF3E8; --brand-100:#FFE2C7;
+  --ink:#111111; --ink-2:#4A4A4A; --ink-3:#8A8A8A;
+  --bg:#F4F4F2; --surface:#FFFFFF; --surface-2:#FAFAF8; --line:#E7E5E1;
+  --ok:#14A44D; --ok-bg:#E6F6EC; --warn:#C98A00; --warn-bg:#FFF6DB; --bad:#D92D20; --bad-bg:#FDECEA;
+  --phone:#0E0E0E; --shadow:0 10px 30px rgba(0,0,0,.08);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --brand-50:#2A1B0D; --brand-100:#3A2510;
+    --ink:#F2F2F0; --ink-2:#C8C8C4; --ink-3:#8C8C88;
+    --bg:#0D0D0C; --surface:#1A1A19; --surface-2:#222220; --line:#2E2E2C;
+    --ok-bg:#12301E; --warn-bg:#33290D; --bad-bg:#3A1714;
+    --phone:#000; --shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --brand-50:#2A1B0D; --brand-100:#3A2510;
+  --ink:#F2F2F0; --ink-2:#C8C8C4; --ink-3:#8C8C88;
+  --bg:#0D0D0C; --surface:#1A1A19; --surface-2:#222220; --line:#2E2E2C;
+  --ok-bg:#12301E; --warn-bg:#33290D; --bad-bg:#3A1714;
+  --phone:#000; --shadow:0 10px 30px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.4;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1440px;margin:0 auto;padding:40px 16px 80px}
+header.page{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px;margin-bottom:28px}
+header.page h1{font-size:28px;font-weight:800;letter-spacing:-.02em}
+header.page p{color:var(--ink-2);max-width:640px;margin-top:6px}
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);padding:4px;border-radius:999px}
+.tabs button{border:0;background:none;color:var(--ink-2);font:600 14px Inter,sans-serif;padding:8px 16px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--brand);color:#fff}
+h2.section{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:8px 0 18px}
+[hidden]{display:none!important}
+
+/* ---------- Phones ---------- */
+.phones{display:flex;flex-wrap:wrap;gap:32px;justify-content:center}
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:12px}
+.phone-col .cap{font-size:13px;color:var(--ink-2);font-weight:600}
+.phone{width:320px;height:680px;background:var(--phone);border-radius:44px;padding:10px;box-shadow:var(--shadow);flex:none}
+.screen{position:relative;width:100%;height:100%;background:var(--surface-2);border-radius:34px;overflow:hidden;display:flex;flex-direction:column}
+.status{display:flex;justify-content:space-between;padding:12px 24px 4px;font-size:12px;font-weight:600}
+.status.on-brand{color:#fff}
+.notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:90px;height:24px;background:#000;border-radius:20px}
+.body{flex:1;overflow:hidden;padding:8px 18px 0;display:flex;flex-direction:column;gap:14px}
+.topbar{display:flex;align-items:center;gap:10px;padding:6px 0}
+.topbar h3{font-size:17px;font-weight:700;flex:1}
+.icon-btn{width:36px;height:36px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.icon-btn svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:none}
+
+.hero{background:var(--brand);margin:-8px -18px 0;padding:6px 18px 56px;color:#fff;border-radius:0 0 28px 28px}
+.hero .hello{display:flex;align-items:center;gap:10px;margin:8px 0 18px}
+.hero .hello small{opacity:.85;font-size:12px;display:block}
+.hero .hello b{font-size:16px}
+.hero .hello .icon-btn{margin-left:auto;background:rgba(255,255,255,.18);border:0}
+.hero .hello .icon-btn svg{stroke:#fff}
+.bal small{font-size:12px;opacity:.85}
+.bal .amt{font-size:30px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.bal .amt span{font-size:15px;font-weight:600;opacity:.85}
+.actions{background:var(--surface);border-radius:20px;margin-top:-44px;padding:16px 10px;display:grid;grid-template-columns:repeat(4,1fr);box-shadow:var(--shadow)}
+.act{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink-2)}
+.act i{width:44px;height:44px;border-radius:14px;background:var(--brand-50);display:grid;place-items:center}
+.act i svg{width:20px;height:20px;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.row-h{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700}
+.row-h a{font-size:12px;color:var(--brand);font-weight:600;text-decoration:none}
+.tx{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.tx:last-child{border-bottom:0}
+.tx .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
+.tx .ic svg{width:18px;height:18px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tx .ic.out{background:var(--brand-50)} .tx .ic.out svg{stroke:var(--brand)}
+.tx .ic.in{background:var(--ok-bg)} .tx .ic.in svg{stroke:var(--ok)}
+.tx .meta{flex:1;min-width:0}
+.tx .meta b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .meta small{font-size:11px;color:var(--ink-3)}
+.tx .v{font-size:13px;font-weight:700;text-align:right}
+.tx .v.neg{color:var(--ink)} .tx .v.pos{color:var(--ok)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.promo{background:linear-gradient(120deg,#111 0%,#2b2b2b 100%);color:#fff;border-radius:var(--r);padding:14px;display:flex;align-items:center;gap:12px}
+.promo b{font-size:13px;display:block} .promo small{font-size:11px;opacity:.75}
+.promo .pill{margin-left:auto;background:var(--brand);color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:6px 10px;flex:none}
+
+.tabbar{display:flex;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:10px 8px 22px}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--ink-3)}
+.tabbar svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabbar .on{color:var(--brand)}
+.tabbar .fab{width:50px;height:50px;border-radius:50%;background:var(--brand);display:grid;place-items:center;margin-top:-26px;box-shadow:0 6px 16px rgba(255,121,0,.45)}
+.tabbar .fab svg{stroke:#fff}
+
+.field{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.field.focus{border-color:var(--brand)}
+.field label{font-size:11px;color:var(--ink-3);display:block}
+.field b{font-size:15px}
+.field svg{width:18px;height:18px;stroke:var(--ink-3);fill:none;stroke-width:2;stroke-linecap:round}
+.contacts{display:flex;gap:12px}
+.contacts div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--ink-2);width:52px;text-align:center}
+.contacts .avatar{width:46px;height:46px;font-size:14px}
+.contacts .sel .avatar{outline:2.5px solid var(--brand);outline-offset:2px}
+.amount{text-align:center;padding:4px 0}
+.amount small{font-size:12px;color:var(--ink-3)}
+.amount .big{font-size:34px;font-weight:800;letter-spacing:-.03em}
+.amount .big span{font-size:18px;color:var(--ink-3);font-weight:600}
+.amount .fee{display:inline-block;margin-top:4px;font-size:11px;background:var(--brand-50);color:var(--brand-600);font-weight:600;padding:4px 10px;border-radius:999px}
+.chips{display:flex;gap:8px;justify-content:center}
+.chips span{font-size:12px;font-weight:600;border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:auto}
+.keypad span{display:grid;place-items:center;height:38px;font-size:20px;font-weight:600;border-radius:12px}
+.btn{display:block;width:100%;text-align:center;background:var(--brand);color:#fff;font-weight:700;font-size:15px;padding:14px;border-radius:14px;border:0}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.foot{padding:10px 18px 24px}
+
+.recip{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0}
+.recip .avatar{width:52px;height:52px;font-size:18px}
+.recip b{font-size:16px} .recip small{font-size:12px;color:var(--ink-3)}
+.sum{display:flex;flex-direction:column}
+.sum div{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.sum div:last-child{border:0;font-weight:800;font-size:15px}
+.sum span{color:var(--ink-2)}
+.pin{text-align:center}
+.pin small{font-size:12px;color:var(--ink-2)}
+.dots{display:flex;gap:14px;justify-content:center;margin-top:10px}
+.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink-3)}
+.dots i.f{background:var(--brand);border-color:var(--brand)}
+.secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--ink-3)}
+.secure svg{width:13px;height:13px;stroke:var(--ok);fill:none;stroke-width:2.2}
+
+.success{align-items:center;text-align:center;justify-content:center;gap:10px}
+.check{width:84px;height:84px;border-radius:50%;background:var(--ok-bg);display:grid;place-items:center;margin:16px auto 6px;box-shadow:0 0 0 12px color-mix(in srgb,var(--ok-bg) 50%,transparent)}
+.check svg{width:40px;height:40px;stroke:var(--ok);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.success h4{font-size:20px;font-weight:800}
+.success p{font-size:13px;color:var(--ink-2)}
+.receipt{width:100%;text-align:left;margin-top:6px}
+.receipt div{display:flex;justify-content:space-between;font-size:12px;padding:7px 0}
+.receipt span{color:var(--ink-3)}
+.receipt b{font-weight:600}
+.row-btns{display:flex;gap:10px;width:100%}
+
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg span{flex:1;text-align:center;font-size:12px;font-weight:600;padding:7px;border-radius:9px;color:var(--ink-2)}
+.seg .on{background:var(--brand);color:#fff}
+.month{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.month .card small{font-size:11px;color:var(--ink-3)}
+.month .card b{display:block;font-size:16px}
+.day{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+/* ---------- Admin ---------- */
+.admin{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:grid;grid-template-columns:232px 1fr;min-height:900px}
+.side{background:#111;color:#ddd;padding:22px 14px;display:flex;flex-direction:column;gap:4px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;color:#fff;font-size:16px;padding:0 8px 22px}
+.logo i{width:32px;height:32px;background:var(--brand);border-radius:8px;display:block}
+.logo small{display:block;font-size:11px;color:#999;font-weight:500}
+.nav a{display:flex;align-items:center;gap:12px;color:#bbb;text-decoration:none;font-size:14px;font-weight:500;padding:10px 12px;border-radius:10px}
+.nav a svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav a.on{background:var(--brand);color:#fff}
+.nav a .badge{margin-left:auto;background:var(--bad);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px}
+.nav .lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#777;padding:16px 12px 6px}
+.side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid #2a2a2a;font-size:13px}
+.side .me small{display:block;color:#888;font-size:11px}
+
+.main{padding:24px 28px;display:flex;flex-direction:column;gap:20px;min-width:0;background:var(--surface-2)}
+.mtop{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mtop h3{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.mtop p{font-size:13px;color:var(--ink-3)}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 12px;min-width:240px;color:var(--ink-3);font-size:13px}
+.search svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.select{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:13px;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.kpi small{font-size:12px;color:var(--ink-3);font-weight:500}
+.kpi .n{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:4px 0}
+.kpi .d{font-size:12px;font-weight:600}
+.up{color:var(--ok)} .down{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel h4{font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
+.panel h4 small{font-weight:500;color:var(--ink-3);font-size:12px}
+.panel h4 .r{margin-left:auto}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--ink-2);margin:8px 0 4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.chart svg{width:100%;height:auto;display:block}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart text{fill:var(--ink-3);font-size:11px;font-family:Inter,sans-serif}
+.donut{display:flex;align-items:center;gap:18px;margin-top:12px}
+.donut ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:13px;flex:1}
+.donut li{display:flex;align-items:center;gap:8px}
+.donut li i{width:10px;height:10px;border-radius:3px}
+.donut li b{margin-left:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;padding:10px 8px;border-bottom:1px solid var(--line)}
+td{padding:12px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+th.num{text-align:right}
+.who{display:flex;align-items:center;gap:10px}
+.who .avatar{width:30px;height:30px;font-size:11px}
+.who small{display:block;color:var(--ink-3);font-size:11px}
+.st{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
+.st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st.ok{background:var(--ok-bg);color:var(--ok)} .st.pend{background:var(--warn-bg);color:var(--warn)} .st.fail{background:var(--bad-bg);color:var(--bad)}
+.tablewrap{overflow-x:auto;margin-top:10px}
+.alert{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.alert:last-child{border:0}
+.alert .dot{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
+.alert .dot svg{width:16px;height:16px;fill:none;stroke-width:2.2;stroke-linecap:round}
+.alert b{font-size:13px;display:block}
+.alert small{font-size:12px;color:var(--ink-3)}
+.alert .acts{display:flex;gap:6px;margin-top:8px}
+.alert .acts span{font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--line)}
+.alert .acts .p{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.bar{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;border-radius:999px}
+.agent{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.agent:last-child{border:0}
+.agent .t{display:flex;justify-content:space-between}
+.agent small{color:var(--ink-3);font-size:11px}
+
+.tokens{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:40px}
+.tok{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:12px}
+.tok i{display:block;height:48px}
+.tok div{padding:8px 10px}
+.tok code{color:var(--ink-3);font-size:11px}
+
+@media (max-width:1100px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .admin{grid-template-columns:1fr}
+  .side{display:none}
+  .main{padding:18px 16px}
+  .search{min-width:0;flex:1;margin-left:0}
+}
+@media (max-width:480px){
+  .kpis{grid-template-columns:1fr}
+  .phone{width:300px;height:640px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <div>
+      <h1>Orange Money — Transfer App &amp; Admin Dashboard</h1>
+      <p>UI concept. Customer-facing mobile flow for sending money (home → send → confirm with PIN → receipt → history) and an operations dashboard for monitoring volume, transactions, fraud alerts and agent float.</p>
+    </div>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="mobile">Mobile app</button>
+      <button role="tab" aria-selected="false" data-tab="admin">Admin dashboard</button>
+      <button role="tab" aria-selected="false" data-tab="tokens">Design tokens</button>
+    </div>
+  </header>
+
+  <!-- ===================== MOBILE ===================== -->
+  <section id="mobile">
+    <h2 class="section">Customer app · Send money flow</h2>
+    <div class="phones">
+
+      <!-- 1. Home -->
+      <div class="phone-col"><div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div style="background:var(--brand)"><div class="status on-brand"><span>9:41</span><span>●●● 5G ▮</span></div></div>
+        <div class="body">
+          <div class="hero">
+            <div class="hello">
+              <div class="avatar" style="background:rgba(255,255,255,.25)">AK</div>
+              <div><small>Good morning</small><b>Aminata Kamara</b></div>
+              <div class="icon-btn"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+            </div>
+            <div class="bal">
+              <small>Available balance</small>
+              <div class="amt">Le 4,820.50 <span>👁</span></div>
+            </div>
+          </div>
+          <div class="actions">
+            <div class="act"><i><svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg></i>Send</div>
+            <div class="act"><i><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg></i>Withdraw</div>
+            <div class="act"><i><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></i>Pay bills</div>
+            <div class="act"><i><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></i>Airtime</div>
+          </div>
+          <div class="promo">
+            <div><b>Send to Guinea &amp; Liberia</b><small>Cross-border transfers, low fees</small></div>
+            <span class="pill">Try now</span>
+          </div>
+          <div class="row-h">Recent activity <a href="#">See all</a></div>
+          <div class="card" style="padding:2px 14px">
+            <div class="tx"><div class="ic out"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg></div><div class="meta"><b>Mohamed Bangura</b><small>Transfer · 10:24</small></div><div class="v neg">−Le 250.00</div></div>
+            <div class="tx"><div class="ic in"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M16 17H7V8"/></svg></div><div class="meta"><b>Fatmata Conteh</b><small>Received · Yesterday</small></div><div class="v pos">+Le 1,200.00</div></div>
+            <div class="tx"><div class="ic out"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></div><div class="meta"><b>EDSA Electricity</b><small>Bill payment · Mon</small></div><div class="v neg">−Le 300.00</div></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="on"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</div>
+          <div><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>History</div>
+          <div class="fab"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/></svg></div>
+          <div><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Cards</div>
+          <div><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</div>
+        </div>
+      </div></div><span class="cap">01 · Home / Wallet</span></div>
+
+      <!-- 2. Send money -->
+      <div class="phone-col"><div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● 5G ▮</span></div>
+        <div class="body">
+          <div class="topbar">
+            <div class="icon-btn"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></div>
+            <h3>Send money</h3>
+          </div>
+          <div class="field focus">
+            <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+            <div style="flex:1"><label>Recipient number</label><b>+232 76 123 456</b></div>
+            <span class="st ok" style="font-size:10px">Verified</span>
+          </div>
+          <div class="contacts">
+            <div class="sel"><span class="avatar" style="background:#2E7D6B">MB</span>Mohamed</div>
+            <div><span class="avatar" style="background:#6B4BC2">FC</span>Fatmata</div>
+            <div><span class="avatar" style="background:#C2410C">IS</span>Ibrahim</div>
+            <div><span class="avatar" style="background:#1D4ED8">HK</span>Hawa</div>
+          </div>
+          <div class="amount">
+            <small>Amount to send</small>
+            <div class="big"><span>Le</span> 250<span>.00</span></div>
+            <span class="fee">Fee: Le 2.50 · Balance Le 4,820.50</span>
+          </div>
+          <div class="chips" style="margin-top:-4px"><span>Le 100</span><span>Le 500</span><span>Le 1,000</span></div>
+          <div class="keypad">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>.</span><span>0</span><span>⌫</span>
+          </div>
+        </div>
+        <div class="foot"><span class="btn">Continue</span></div>
+      </div></div><span class="cap">02 · Enter recipient &amp; amount</span></div>
+
+      <!-- 3. Confirm + PIN -->
+      <div class="phone-col"><div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● 5G ▮</span></div>
+        <div class="body">
+          <div class="topbar">
+            <div class="icon-btn"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></div>
+            <h3>Confirm transfer</h3>
+          </div>
+          <div class="recip">
+            <span class="avatar" style="background:#2E7D6B">MB</span>
+            <b>Mohamed Bangura</b>
+            <small>+232 76 123 456</small>
+          </div>
+          <div class="card sum">
+            <div><span>Amount</span><b>Le 250.00</b></div>
+            <div><span>Transfer fee</span><b>Le 2.50</b></div>
+            <div><span>Reason</span><b>Family support</b></div>
+            <div><span>Total</span><b>Le 252.50</b></div>
+          </div>
+          <div class="pin">
+            <small>Enter your 4-digit PIN to confirm</small>
+            <div class="dots"><i class="f"></i><i class="f"></i><i class="f"></i><i></i></div>
+          </div>
+          <div class="keypad">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span style="font-size:13px;color:var(--brand)">Face ID</span><span>0</span><span>⌫</span>
+          </div>
+          <div class="secure" style="padding-bottom:18px"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secured with end-to-end encryption</div>
+        </div>
+      </div></div><span class="cap">03 · Review &amp; PIN</span></div>
+
+      <!-- 4. Success -->
+      <div class="phone-col"><div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● 5G ▮</span></div>
+        <div class="body success">
+          <div class="check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <h4>Transfer successful</h4>
+          <p>Le 250.00 sent to <b>Mohamed Bangura</b></p>
+          <div class="card receipt">
+            <div><span>Transaction ID</span><b>OM2610091024A7</b></div>
+            <div><span>Date</span><b>09 Oct 2026, 10:24</b></div>
+            <div><span>Fee</span><b>Le 2.50</b></div>
+            <div><span>New balance</span><b>Le 4,568.00</b></div>
+          </div>
+          <div class="row-btns">
+            <span class="btn ghost" style="flex:1">Share receipt</span>
+            <span class="btn" style="flex:1">Done</span>
+          </div>
+          <a href="#" style="font-size:13px;color:var(--brand);font-weight:600;text-decoration:none">Save Mohamed as favourite</a>
+        </div>
+      </div></div><span class="cap">04 · Success / Receipt</span></div>
+
+      <!-- 5. History -->
+      <div class="phone-col"><div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="status"><span>9:41</span><span>●●● 5G ▮</span></div>
+        <div class="body">
+          <div class="topbar"><h3>Transactions</h3><div class="icon-btn"><svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M10 18h4"/></svg></div></div>
+          <div class="seg"><span class="on">All</span><span>Sent</span><span>Received</span><span>Bills</span></div>
+          <div class="month">
+            <div class="card"><small>Money in · Oct</small><b class="up">+Le 6,400</b></div>
+            <div class="card"><small>Money out · Oct</small><b>−Le 2,150</b></div>
+          </div>
+          <div class="day">Today</div>
+          <div class="card" style="padding:2px 14px">
+            <div class="tx"><div class="ic out"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg></div><div class="meta"><b>Mohamed Bangura</b><small>10:24 · Transfer</small></div><div class="v neg">−Le 252.50</div></div>
+            <div class="tx"><div class="ic out"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/></svg></div><div class="meta"><b>Airtime top-up</b><small>08:02 · Self</small></div><div class="v neg">−Le 50.00</div></div>
+          </div>
+          <div class="day">Yesterday</div>
+          <div class="card" style="padding:2px 14px">
+            <div class="tx"><div class="ic in"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M16 17H7V8"/></svg></div><div class="meta"><b>Fatmata Conteh</b><small>18:40 · Received</small></div><div class="v pos">+Le 1,200.00</div></div>
+            <div class="tx"><div class="ic in"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M16 17H7V8"/></svg></div><div class="meta"><b>Cash deposit · Agent 0441</b><small>12:15 · Lumley</small></div><div class="v pos">+Le 3,000.00</div></div>
+            <div class="tx"><div class="ic out"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></div><div class="meta"><b>EDSA Electricity</b><small>09:30 · Bill</small></div><div class="v neg">−Le 300.00</div></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</div>
+          <div class="on"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg>History</div>
+          <div class="fab"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/></svg></div>
+          <div><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Cards</div>
+          <div><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Profile</div>
+        </div>
+      </div></div><span class="cap">05 · Transaction history</span></div>
+
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN ===================== -->
+  <section id="admin" hidden>
+    <h2 class="section">Operations · Admin dashboard (desktop, responsive)</h2>
+    <div class="admin">
+      <aside class="side">
+        <div class="logo"><i></i><div>Money Admin<small>Operations console</small></div></div>
+        <nav class="nav">
+          <a class="on" href="#"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Overview</a>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>Transactions</a>
+          <a href="#"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M21 21v-2a4 4 0 0 0-3-3.9"/></svg>Customers</a>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="m3 9 9-6 9 6v12H3z"/><path d="M9 21V12h6v9"/></svg>Agents</a>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Fraud &amp; risk <span class="badge">7</span></a>
+          <div class="lbl">Finance</div>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Fees &amp; revenue</a>
+          <a href="#"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg>Reports</a>
+          <a href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Settings</a>
+        </nav>
+        <div class="me"><span class="avatar" style="background:var(--brand)">SA</span><div>Sarah Admin<small>Ops supervisor</small></div></div>
+      </aside>
+
+      <div class="main">
+        <div class="mtop">
+          <div><h3>Overview</h3><p>Friday, 9 October 2026 · Live</p></div>
+          <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Search phone, transaction ID, agent…</div>
+          <div class="select">Last 14 days ▾</div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><small>Transfer volume</small><div class="n">Le 48.2M</div><div class="d up">▲ 12.4% vs prev.</div></div>
+          <div class="kpi"><small>Transactions</small><div class="n">312,904</div><div class="d up">▲ 8.1% vs prev.</div></div>
+          <div class="kpi"><small>Active wallets</small><div class="n">84,511</div><div class="d up">▲ 3.6% vs prev.</div></div>
+          <div class="kpi"><small>Failed rate</small><div class="n">1.8%</div><div class="d down">▲ 0.3 pts vs prev.</div></div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel chart">
+            <h4>Transaction volume <small>Le millions / day</small></h4>
+            <div class="legend"><span><i style="background:var(--brand)"></i>P2P transfers</span><span><i style="background:var(--ink-3)"></i>Bills &amp; merchant</span></div>
+            <svg viewBox="0 0 640 230" role="img" aria-label="Daily transaction volume over 14 days">
+              <g class="gl"><line x1="36" y1="20" x2="630" y2="20"/><line x1="36" y1="70" x2="630" y2="70"/><line x1="36" y1="120" x2="630" y2="120"/><line x1="36" y1="170" x2="630" y2="170"/><line x1="36" y1="200" x2="630" y2="200" style="stroke:var(--ink-3)"/></g>
+              <text x="0" y="24">4.5</text><text x="0" y="74">3.0</text><text x="0" y="124">1.5</text><text x="6" y="204">0</text>
+              <path d="M36 128 L82 118 L127 122 L173 104 L219 98 L264 110 L310 86 L356 92 L401 78 L447 70 L493 82 L538 60 L584 52 L630 44 L630 200 L36 200Z" fill="var(--brand)" opacity=".12"/>
+              <path d="M36 128 L82 118 L127 122 L173 104 L219 98 L264 110 L310 86 L356 92 L401 78 L447 70 L493 82 L538 60 L584 52 L630 44" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linejoin="round"/>
+              <path d="M36 168 L82 164 L127 166 L173 160 L219 158 L264 162 L310 154 L356 156 L401 150 L447 148 L493 152 L538 146 L584 142 L630 140" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="4 4"/>
+              <circle cx="630" cy="44" r="5" fill="var(--brand)" stroke="var(--surface)" stroke-width="2"/>
+              <g><rect x="548" y="8" width="74" height="24" rx="6" fill="var(--ink)"/><text x="556" y="24" style="fill:var(--surface);font-weight:700">Le 4.1M</text></g>
+              <text x="30" y="222">26 Sep</text><text x="300" y="222">2 Oct</text><text x="596" y="222">9 Oct</text>
+            </svg>
+          </div>
+          <div class="panel">
+            <h4>By transaction type</h4>
+            <div class="donut">
+              <svg width="128" height="128" viewBox="0 0 42 42" role="img" aria-label="Share by transaction type">
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--line)" stroke-width="6"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--brand)" stroke-width="6" stroke-dasharray="52 48" stroke-dashoffset="25"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#FFB570" stroke-width="6" stroke-dasharray="22 78" stroke-dashoffset="-27"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--ink-2)" stroke-width="6" stroke-dasharray="16 84" stroke-dashoffset="-49"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--ink-3)" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="-65"/>
+                <text x="21" y="22.5" text-anchor="middle" style="font-size:5px;font-weight:800;fill:var(--ink)">313K</text>
+              </svg>
+              <ul>
+                <li><i style="background:var(--brand)"></i>P2P transfer<b>52%</b></li>
+                <li><i style="background:#FFB570"></i>Cash in/out<b>22%</b></li>
+                <li><i style="background:var(--ink-2)"></i>Bill payment<b>16%</b></li>
+                <li><i style="background:var(--ink-3)"></i>Airtime<b>10%</b></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="panel">
+            <h4>Recent transactions <span class="r select" style="padding:6px 10px;font-size:12px">Export CSV</span></h4>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Transaction</th><th>Sender → Receiver</th><th>Type</th><th class="num">Amount</th><th>Status</th><th>Time</th></tr></thead>
+                <tbody>
+                  <tr><td>OM2610091024A7</td><td><div class="who"><span class="avatar" style="background:#7A5AF8">AK</span><div>Aminata K. → Mohamed B.<small>+232 77 •••• 12 → +232 76 •••• 56</small></div></div></td><td>P2P</td><td class="num">Le 250.00</td><td><span class="st ok">Success</span></td><td>10:24</td></tr>
+                  <tr><td>OM2610091021C2</td><td><div class="who"><span class="avatar" style="background:#2E7D6B">IS</span><div>Ibrahim S. → EDSA<small>+232 78 •••• 03 → Biller 1002</small></div></div></td><td>Bill</td><td class="num">Le 420.00</td><td><span class="st ok">Success</span></td><td>10:21</td></tr>
+                  <tr><td>OM2610091019F9</td><td><div class="who"><span class="avatar" style="background:#C2410C">HK</span><div>Hawa K. → Agent 0441<small>+232 79 •••• 88 → Lumley</small></div></div></td><td>Cash out</td><td class="num">Le 1,500.00</td><td><span class="st pend">Pending</span></td><td>10:19</td></tr>
+                  <tr><td>OM2610091017B1</td><td><div class="who"><span class="avatar" style="background:#1D4ED8">JT</span><div>John T. → Unknown<small>+232 30 •••• 41 → +224 62 •••• 10</small></div></div></td><td>Cross-border</td><td class="num">Le 9,800.00</td><td><span class="st fail">Blocked</span></td><td>10:17</td></tr>
+                  <tr><td>OM2610091012D4</td><td><div class="who"><span class="avatar" style="background:#B54708">MS</span><div>Mariama S. → Abu K.<small>+232 77 •••• 90 → +232 99 •••• 21</small></div></div></td><td>P2P</td><td class="num">Le 75.00</td><td><span class="st ok">Success</span></td><td>10:12</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+            <div class="panel">
+              <h4>Fraud alerts <small>7 open</small></h4>
+              <div class="alert">
+                <div class="dot" style="background:var(--bad-bg)"><svg viewBox="0 0 24 24" style="stroke:var(--bad)"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+                <div><b>Velocity limit exceeded</b><small>+232 30 •••• 41 · 14 transfers in 6 min</small><div class="acts"><span class="p">Freeze wallet</span><span>Review</span></div></div>
+              </div>
+              <div class="alert">
+                <div class="dot" style="background:var(--warn-bg)"><svg viewBox="0 0 24 24" style="stroke:var(--warn)"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div>
+                <div><b>SIM swap + large transfer</b><small>+232 76 •••• 07 · Le 12,000 within 1h of swap</small><div class="acts"><span class="p">Hold</span><span>Call customer</span></div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <h4>Agent float <small>Low balance</small></h4>
+              <div class="agent"><div class="t"><b>Agent 0441 · Lumley</b><span class="down">12%</span></div><div class="bar"><i style="width:12%;background:var(--bad)"></i></div><small>Le 3,600 of Le 30,000</small></div>
+              <div class="agent"><div class="t"><b>Agent 0219 · Bo Town</b><span style="color:var(--warn)">28%</span></div><div class="bar"><i style="width:28%;background:var(--warn)"></i></div><small>Le 8,400 of Le 30,000</small></div>
+              <div class="agent"><div class="t"><b>Agent 0107 · Kenema</b><span class="up">74%</span></div><div class="bar"><i style="width:74%;background:var(--ok)"></i></div><small>Le 22,200 of Le 30,000</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TOKENS ===================== -->
+  <section id="tokens" hidden>
+    <h2 class="section">Design tokens</h2>
+    <div class="tokens">
+      <div class="tok"><i style="background:#FF7900"></i><div><b>Brand</b><br><code>--brand #FF7900</code></div></div>
+      <div class="tok"><i style="background:#E86A00"></i><div><b>Brand pressed</b><br><code>--brand-600 #E86A00</code></div></div>
+      <div class="tok"><i style="background:#FFF3E8"></i><div><b>Brand tint</b><br><code>--brand-50 #FFF3E8</code></div></div>
+      <div class="tok"><i style="background:#111111"></i><div><b>Ink</b><br><code>--ink #111111</code></div></div>
+      <div class="tok"><i style="background:#14A44D"></i><div><b>Success</b><br><code>--ok #14A44D</code></div></div>
+      <div class="tok"><i style="background:#C98A00"></i><div><b>Pending</b><br><code>--warn #C98A00</code></div></div>
+      <div class="tok"><i style="background:#D92D20"></i><div><b>Error / blocked</b><br><code>--bad #D92D20</code></div></div>
+      <div class="tok"><i style="background:#F4F4F2"></i><div><b>Background</b><br><code>--bg #F4F4F2</code></div></div>
+    </div>
+    <div class="tokens" style="margin-top:16px">
+      <div class="tok"><div><b>Type</b><br><code>Inter 400/600/700/800</code><br><code>Display 30–38 · Title 17–22 · Body 13–15 · Caption 11</code></div></div>
+      <div class="tok"><div><b>Radius</b><br><code>Chip 999 · Input/Button 14 · Card 16 · Sheet 28</code></div></div>
+      <div class="tok"><div><b>Spacing</b><br><code>4 · 8 · 12 · 14 · 18 · 24</code><br><code>Screen gutter 18px</code></div></div>
+      <div class="tok"><div><b>Touch targets</b><br><code>Min 44×44 · Primary CTA 48 tall</code></div></div>
+    </div>
+  </section>
+</div>
+<script>
+document.querySelectorAll('.tabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+    ['mobile','admin','tokens'].forEach(id=>document.getElementById(id).hidden=id!==b.dataset.tab);
+    try{localStorage.setItem('om-tab',b.dataset.tab)}catch(e){}
+  });
+});
+try{const t=localStorage.getItem('om-tab');if(t)document.querySelector(`[data-tab="${t}"]`)?.click()}catch(e){}
+</script>
+</body>
+</html>

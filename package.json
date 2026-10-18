@@ -1,0 +1,19 @@
+{
+  "name": "kassa",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kassa — livraison de repas à Conakry : app client, espace restaurant (SaaS Kassa Pro), app livreur et administration.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
+    "seed": "node --disable-warning=ExperimentalWarning server/seed.js",
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/**/*.test.js\""
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

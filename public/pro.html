@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kassa Pro — Vendez en ligne à Conakry</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/kassa.css">
+<style>
+  .hero { background: var(--green); color: #fff; }
+  .hero .page { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; padding-top: 64px; padding-bottom: 64px; }
+  .hero h1 { font-size: clamp(36px, 5vw, 60px); line-height: 1.03; }
+  .hero p { color: #D6EBE1; font-size: 18px; max-width: 520px; }
+  .plan.featured { background: var(--green); color: #fff; }
+  .plan.featured .muted { color: #CFE5DA; }
+  header.site { background: #fff; border-bottom: 1px solid var(--line); }
+  header.site .page { padding-top: 12px; padding-bottom: 12px; }
+</style>
+</head>
+<body>
+<header class="site"><div class="page row between" id="header"></div></header>
+<section class="hero">
+  <div class="page">
+    <div class="stack grow" style="--gap: 20px; flex: 1 1 420px">
+      <span class="tag" style="background: var(--yellow); color: var(--ink); align-self: flex-start; font-size: 13px; padding: 6px 10px">Pour les restaurants, maquis et traiteurs de Conakry</span>
+      <h1>Vendez plus.<br>Livrez partout à Conakry.</h1>
+      <p>Kassa Pro met votre menu devant les clients de Conakry, gère vos commandes et envoie nos livreurs à votre porte. Paiement par Orange Money, MTN MoMo, carte ou espèces.</p>
+      <div class="row"><a class="btn yellow" href="#inscription">Inscrire mon restaurant</a><a class="btn" href="#tarifs">Voir les tarifs</a></div>
+      <span class="small" style="color: #BFDDCF" id="trial-line"></span>
+    </div>
+  </div>
+</section>
+
+<section class="page stack" style="--gap: 24px">
+  <h2 class="display" style="font-size: 32px">Tout ce qu’il faut pour vendre en ligne</h2>
+  <div class="grid" style="--min: 260px">
+    <div class="card stack"><h3>Commandes en temps réel</h3><p class="muted">Acceptez, préparez, signalez quand c’est prêt : le client suit chaque étape.</p></div>
+    <div class="card stack"><h3>Livreurs Kassa inclus</h3><p class="muted">Des livreurs à moto dans les cinq communes. Remise contre un code à 4 chiffres.</p></div>
+    <div class="card stack"><h3>Menu toujours à jour</h3><p class="muted">Un plat en rupture ? Marquez-le épuisé en un geste. Ouvrez et fermez quand vous voulez.</p></div>
+  </div>
+</section>
+
+<section id="tarifs" style="background: #fff">
+  <div class="page stack" style="--gap: 24px">
+    <h2 class="display" style="font-size: 32px">Un abonnement adapté à votre cuisine</h2>
+    <div class="grid" style="--min: 280px" id="plans"></div>
+  </div>
+</section>
+
+<section id="inscription" class="page" style="max-width: 760px">
+  <div class="card stack" style="--gap: 18px; padding: clamp(20px, 4vw, 36px)" id="signup"></div>
+</section>
+
+<footer class="page small muted">Kassa · Conakry, Guinée · <a href="/">Commander un repas</a></footer>
+<script type="module" src="/js/pro.js"></script>
+</body>
+</html>
